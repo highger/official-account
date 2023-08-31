@@ -31,3 +31,4 @@ target/
 .mvn/
 mvn*
 *.flattened-pom.xml
+/.idea/
