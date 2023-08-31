@@ -1,0 +1,15 @@
+spring:
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    encoding: UTF-8 #编码
+    suffix: .html #模板后缀
+
+wechat:
+  open:
+    appId: "wxb4222e21418329ab"
+    secret: "4c69da3d7470781e14a0f3d7e06927ec"
+    token: "norman"
+    aesKey:
+  redis:
+    host: "127.0.0.1"

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Official Account管理后台</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <link rel="stylesheet" href="/static/amissdk/sdk.css"/>
+    <link rel="stylesheet" href="/static/amissdk/helper.css"/>
+    <!-- 从 1.1.0 开始 sdk.css 将不支持 IE 11，如果要支持 IE11 请引用这个 css，并把前面那个删了 -->
+    <!-- <link rel="stylesheet" href="sdk-ie11.css" /> -->
+    <!-- 不过 amis 开发团队几乎没测试过 IE 11 下的效果，所以可能有细节功能用不了，如果发现请报 issue -->
+    <style>
+        html,
+        body,
+        .app-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+<div id="root" class="app-wrapper"></div>
+<script src="/static/amissdk/sdk.js"></script>
+<script src="/static/amissdk/pages/industryPage.js"></script>
+<script src="/static/amissdk/pages/messageTemplatePage.js"></script>
+<script src="/static/amissdk/pages/menuManagePage.js"></script>
+<script src="/static/amissdk/pages/mediaPage.js"></script>
+<script src="/static/amissdk/pages/fansPage.js"></script>
+<script src="/static/amissdk/pages/tagPage.js"></script>
+<script th:inline="javascript">
+    (function () {
+        let amis = amisRequire("amis/embed");
+        var host = [[${host}]].replaceAll('\'', '');
+        console.log(host);
+        var industryStr = JSON.stringify(industryPage).replaceAll('hostml', host)
+        var messageTemplateStr = JSON.stringify(messageTemplatePage).replaceAll('hostml', host)
+        var menuStr = JSON.stringify(menuManagePage).replaceAll('hostml', host)
+        var mediaStr = JSON.stringify(mediaPage).replaceAll('hostml', host)
+        var fansStr = JSON.stringify(fansPage).replaceAll('hostml', host)
+        var tagStr = JSON.stringify(tagPage).replaceAll('hostml', host)
+        // 通过替换下面这个配置来生成不同页面
+        let amisJSON = {
+            type: "page",
+            title: "Official Account",
+            className: "overflow-scroll",
+            body: [
+                {
+                    type: "tabs",
+                    mode: "vertical",
+                    tabs: [
+                        {
+                            reload: true,
+                            title: "行业管理",
+                            body: JSON.parse(industryStr)
+                        },{
+                            reload: true,
+                            title: "模版消息",
+                            body: JSON.parse(messageTemplateStr)
+                        },{
+                            reload: true,
+                            title: "菜单管理",
+                            body: JSON.parse(menuStr)
+                        },{
+                            reload: true,
+                            title: "素材管理",
+                            body: JSON.parse(mediaStr)
+                        },{
+                            reload: true,
+                            title: "标签管理",
+                            body: JSON.parse(tagStr)
+                        },{
+                            reload: true,
+                            title: "粉丝管理",
+                            body: JSON.parse(fansStr)
+                        },
+                    ],
+                },
+            ],
+        };
+        console.log(amisJSON);
+        let amisScoped = amis.embed("#root", amisJSON);
+    })();
+
+</script>
+</body>
+</html>
