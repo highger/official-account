@@ -275,6 +275,7 @@
                 <artifactId>image-combiner</artifactId>
                 <version>2.4.1</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 

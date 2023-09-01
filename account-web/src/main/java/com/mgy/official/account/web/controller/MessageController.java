@@ -8,7 +8,6 @@ import com.mgy.official.account.core.dao.FollowInfoMapper;
 import com.mgy.official.account.core.dao.UserMapper;
 import com.mgy.official.account.core.pojo.TFollowInfo;
 import com.mgy.official.account.core.pojo.TUser;
-import com.mgy.official.account.service.IQrCodeService;
 import com.mgy.official.account.service.ITemplateMessageService;
 import com.mgy.official.account.service.IWxService;
 import com.mgy.official.account.service.enums.QrSceneTypeEnum;
@@ -234,7 +233,7 @@ public class MessageController {
                 //redirect_Uri用户同意后跳转的地址
                 "http://" + redirectDomain + "/getSignUpUserInfo", //scope
                 "snsapi_userinfo");
-        log.info("handleSubscribe.url={}",url);
+        log.info("handleSubscribe.url={}", url);
         String xml = MessageUtil.generateTextMessageForXML(map, "我们正在进行邀请送好礼活动，点击链接：<a href=\"" + url + "\">参与活动</a>");
         return xml;
     }
@@ -245,7 +244,7 @@ public class MessageController {
 
     private void sendModelMessage(String sharedUserWxId) {
         String url = String.format("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s", TokenUtils.getAccessToken());
-//查询当前助力值
+        //查询当前助力值
         QueryWrapper<TFollowInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(TFollowInfo::getOpenId, sharedUserWxId);
         Long count = followInfoMapper.selectCount(queryWrapper);//根据目前助力值获得返回内容
@@ -423,7 +422,7 @@ public class MessageController {
         article.setPicUrl("https://img0.baidu.com/it/u=3501038345,2787595729&fm=253&fmt=auto&f=JPEG?w=300&h=200");
         articleList.add(article);
         textMessage.setArticles(articleList);
-//XStream将Java对象转换成xmL字符串
+        //XStream将Java对象转换成xmL字符串
         XStream xStream = new XStream();
         xStream.processAnnotations(NewMessage.class);
         return xStream.toXML(textMessage);
@@ -437,28 +436,33 @@ public class MessageController {
         String content = map.get("Content");
         String type = "";
         String newContent = null;
-        if (content.contains("近义词")) {
-            type = "1";
-            int i = content.indexOf("的近义词");
-            newContent = content.substring(0, i);
-        } else if (content.contains("反义词")) {
-            type = "2";
-            int i = content.indexOf("的反义词");
-            newContent = content.substring(0, i);
-        }
-        if (StringUtils.isNotBlank(type)) {
-            System.out.println("newContent" + newContent);
-            List<String> list = JuheUtils.JuheWords(newContent, type);
-            if (CollectionUtils.isEmpty(list)) {
-                textMessage.setContent("没找到" + newContent + "的" + WordsTypeEnum.getWordsTypeEnum(type).getMsg() + "，换一个试试");
+        if ((content.contains("的近义词") || content.contains("的反义词"))) {
+            if (content.contains("的近义词")) {
+                type = "1";
+                int i = content.indexOf("的近义词");
+                newContent = content.substring(0, i);
+            } else if (content.contains("的反义词")) {
+                type = "2";
+                int i = content.indexOf("的反义词");
+                newContent = content.substring(0, i);
+            }
+            if (StringUtils.isNotBlank(type)) {
+                System.out.println("newContent" + newContent);
+                List<String> list = JuheUtils.JuheWords(newContent, type);
+                if (CollectionUtils.isEmpty(list)) {
+                    textMessage.setContent("没找到" + newContent + "的" + WordsTypeEnum.getWordsTypeEnum(type).getMsg() + "，换一个试试");
+                } else {
+                    textMessage.setContent(newContent + WordsTypeEnum.getWordsTypeEnum(type).getMsg() + "是：" + String.join("，", list));
+                }
             } else {
-                textMessage.setContent(newContent + WordsTypeEnum.getWordsTypeEnum(type).getMsg() + "是：" + String.join("，", list));
+                textMessage.setContent("你可以回复：XX的近义词");
             }
         } else {
-            textMessage.setContent("你可以回复：XX的近义词");
+            textMessage.setContent("欢迎扩散公众号：程序员成长有道\n主人，已为你找到相关文档：\n👉<a href=\\\"\"https://www.baidu.com/s?wd=" + content + "\"\\\">" + content + "</a>");
         }
+
         textMessage.setCreateTime(System.currentTimeMillis() / 1000);
-//XStream将Java对象转换成xmL字符串
+        //XStream将Java对象转换成xmL字符串
         XStream xStream = new XStream();
         xStream.processAnnotations(TextMessage.class);
         return xStream.toXML(textMessage);
